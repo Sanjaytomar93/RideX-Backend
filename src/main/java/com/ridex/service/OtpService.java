@@ -4,4 +4,6 @@ public interface OtpService {
 
     boolean verifyOtp(String mobileNumber,
                       String otp);
+
+    void sendOtsp(String mobileNumber);
 }

@@ -7,10 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 
@@ -23,7 +20,7 @@ import java.time.LocalDate;
 @SuperBuilder
 public class User extends BaseEntity {
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = true, length = 100)
     private String fullName;
 
     @Column(name = "mobile_number", nullable = false, unique = true, length = 10)
@@ -55,4 +52,8 @@ public class User extends BaseEntity {
 
     @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified;
+
+    @Builder.Default
+    @Column(name = "profile_completed", nullable = false)
+    private Boolean profileCompleted = false;
 }

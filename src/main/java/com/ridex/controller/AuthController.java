@@ -1,27 +1,48 @@
 package com.ridex.controller;
+import com.ridex.dto.request.VerifyOtpRequest;
+import com.ridex.dto.response.CommonApiResponse;
+import com.ridex.dto.response.LoginResponse;
 import com.ridex.service.AuthService;
+import com.ridex.util.ApiResponseUtil;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    @PostMapping("/verify-otp")
+    public ResponseEntity<CommonApiResponse<LoginResponse>> verifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request) {
+
+        LoginResponse response = authService.verifyOtp(request);
+
+        return ResponseEntity.ok(
+                ApiResponseUtil.success(
+                        HttpStatus.OK.value(),
+                        "Login Successful",
+                        response
+                )
+        );
     }
 
     @PostMapping("/send-otp")
-    public ResponseEntity<ApiResponse<Void>> sendOtp(
-            @Valid @RequestBody SendOtpRequest request) {
+    public ResponseEntity<CommonApiResponse<String>> sendOtp(
+            @RequestParam String mobileNumber) {
 
-        authService.sendOtp(request.getMobileNumber());
+        authService.sendOtp(mobileNumber);
 
         return ResponseEntity.ok(
-                ApiResponse.success("OTP sent successfully")
+                ApiResponseUtil.success(
+                        HttpStatus.OK.value(),
+                        "OTP Sent Successfully",
+                        null
+                )
         );
     }
 }

@@ -1,0 +1,48 @@
+package com.ridex.controller;
+import com.ridex.dto.request.UpdateProfileRequest;
+import com.ridex.dto.response.CommonApiResponse;
+import com.ridex.dto.response.UserProfileResponse;
+import com.ridex.service.UserService;
+import com.ridex.util.ApiResponseUtil;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/user")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+
+    @GetMapping("/profile")
+    public ResponseEntity<CommonApiResponse<UserProfileResponse>> getUserProfile() {
+
+        UserProfileResponse response = userService.getProfile();
+
+        return ResponseEntity.ok(ApiResponseUtil.success(
+                HttpStatus.OK.value(),
+                "Profile fetched successfully",
+                response
+        ));
+
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<CommonApiResponse<UserProfileResponse>> updateUserProfile(
+            @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
+
+        UserProfileResponse response = userService.updateProfile(updateProfileRequest);
+
+        return ResponseEntity.ok(ApiResponseUtil.success(
+                HttpStatus.OK.value(),
+                "Profile updated successfully",
+                response
+        ));
+    }
+
+
+}
