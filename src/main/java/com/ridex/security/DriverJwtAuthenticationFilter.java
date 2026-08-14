@@ -1,5 +1,5 @@
 package com.ridex.security;
-import com.ridex.entity.User;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,14 +11,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class DriverJwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomDriverDetailsService customDriverDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,14 +39,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (mobileNumber != null
                 && SecurityContextHolder.getContext().getAuthentication() == null
-                && JwtService.ACCOUNT_TYPE_USER.equals(jwtService.extractAccountType(jwt))) {
+                && JwtService.ACCOUNT_TYPE_DRIVER.equals(jwtService.extractAccountType(jwt))) {
 
             UserDetails userDetails =
-                    customUserDetailsService.loadUserByUsername(mobileNumber);
+                    customDriverDetailsService.loadUserByUsername(mobileNumber);
 
-            User user = ((CustomUserDetails) userDetails).getUser();
+            CustomDriverDetails driverDetails = (CustomDriverDetails) userDetails;
 
-            if (jwtService.isTokenValid(jwt, user)) {
+            if (jwtService.isTokenValid(jwt, driverDetails.getDriver())) {
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
@@ -55,13 +56,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
 
                 authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
 

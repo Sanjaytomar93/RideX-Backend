@@ -1,9 +1,13 @@
 package com.ridex.serviceImpl;
+
+import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.VerifyOtpRequest;
 import com.ridex.dto.response.LoginResponse;
 import com.ridex.entity.User;
 import com.ridex.enums.Role;
 import com.ridex.enums.UserStatus;
+import com.ridex.exception.InvalidOtpException;
+import com.ridex.exception.UserAccountInactiveException;
 import com.ridex.repository.UserRepository;
 import com.ridex.security.JwtService;
 import com.ridex.service.AuthService;
@@ -16,57 +20,63 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-
     private final OtpService otpService;
-
     private final JwtService jwtService;
 
     @Override
     public void sendOtp(String mobileNumber) {
-
-        otpService.sendOtsp(mobileNumber);
-
+        otpService.sendOtp(mobileNumber);
     }
 
     @Override
     public LoginResponse verifyOtp(VerifyOtpRequest request) {
 
-        // Step 1 : Verify OTP
         boolean isOtpValid = otpService.verifyOtp(
                 request.getMobileNumber(),
                 request.getOtp()
         );
 
         if (!isOtpValid) {
-            throw new RuntimeException("Invalid OTP");
+            throw new InvalidOtpException(ResponseMessage.INVALID_OTP);
         }
 
-        // Step 2 : Find Existing User
-        User user = userRepository
-                .findByMobileNumberAndDeletedFalse(request.getMobileNumber())
-                .orElseGet(() -> createNewUser(request));
+        User user = findOrCreateUser(request);
 
-        // Step 3 : Generate JWT
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new UserAccountInactiveException(ResponseMessage.ACCOUNT_INACTIVE);
+        }
+
         String accessToken = jwtService.generateToken(user);
 
-        // Step 4 : Check Profile Completion
-        boolean profileCompleted =
-                user.getFullName() != null &&
-                        !user.getFullName().isBlank();
-
-        // Step 5 : Return Response
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")
                 .userId(user.getId())
                 .role(user.getRole())
-                .profileCompleted(profileCompleted)
+                .profileCompleted(user.getProfileCompleted())
                 .build();
     }
 
-    /**
-     * Create New User
-     */
+    private User findOrCreateUser(VerifyOtpRequest request) {
+
+        return userRepository
+                .findByMobileNumberAndDeletedFalse(request.getMobileNumber())
+                .orElseGet(() -> userRepository
+                        .findByMobileNumber(request.getMobileNumber())
+                        .filter(User::getDeleted)
+                        .map(this::reactivateUser)
+                        .orElseGet(() -> createNewUser(request)));
+    }
+
+    private User reactivateUser(User user) {
+
+        user.setDeleted(false);
+        user.setStatus(UserStatus.ACTIVE);
+        user.setMobileVerified(true);
+
+        return userRepository.save(user);
+    }
+
     private User createNewUser(VerifyOtpRequest request) {
 
         User user = User.builder()
