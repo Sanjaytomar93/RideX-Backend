@@ -1,6 +1,6 @@
 package com.ridex.dto.response;
 
-import com.ridex.enums.Role;
+import com.ridex.enums.DriverStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,15 +12,19 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
+public class DriverLoginResponse {
 
     private String accessToken;
 
     private String tokenType;
 
-    private Long userId;
+    private Long driverId;
 
-    private Role role;
+    private String mobileNumber;
 
     private Boolean profileCompleted;
+
+    private Boolean isVerified;
+
+    private DriverStatus status;
 }

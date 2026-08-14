@@ -1,4 +1,6 @@
 package com.ridex.controller;
+
+import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.UpdateProfileRequest;
 import com.ridex.dto.response.CommonApiResponse;
 import com.ridex.dto.response.UserProfileResponse;
@@ -8,7 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -17,7 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     @GetMapping("/profile")
     public ResponseEntity<CommonApiResponse<UserProfileResponse>> getUserProfile() {
 
@@ -25,10 +30,9 @@ public class UserController {
 
         return ResponseEntity.ok(ApiResponseUtil.success(
                 HttpStatus.OK.value(),
-                "Profile fetched successfully",
+                ResponseMessage.PROFILE_FETCHED,
                 response
         ));
-
     }
 
     @PutMapping("/profile")
@@ -39,10 +43,8 @@ public class UserController {
 
         return ResponseEntity.ok(ApiResponseUtil.success(
                 HttpStatus.OK.value(),
-                "Profile updated successfully",
+                ResponseMessage.PROFILE_UPDATED,
                 response
         ));
     }
-
-
 }

@@ -1,6 +1,7 @@
 package com.ridex.security;
-import com.ridex.entity.User;
-import com.ridex.repository.UserRepository;
+
+import com.ridex.entity.Driver;
+import com.ridex.repository.DriverRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,21 +12,20 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomDriverDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final DriverRepository driverRepository;
 
     @Override
     public UserDetails loadUserByUsername(String mobileNumber)
             throws UsernameNotFoundException {
 
-        log.debug("Loading user for mobile ending with {}", mobileNumber.substring(6));
+        log.debug("Loading driver for mobile ending with {}", mobileNumber.substring(6));
 
-        User user = userRepository
+        Driver driver = driverRepository
                 .findByMobileNumberAndDeletedFalse(mobileNumber)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Driver not found"));
 
-        return new CustomUserDetails(user);
+        return new CustomDriverDetails(driver);
     }
 }

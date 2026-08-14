@@ -4,11 +4,9 @@ import com.ridex.dto.response.LocationResponse;
 import com.ridex.entity.Location;
 import com.ridex.entity.User;
 import com.ridex.repository.LocationRepository;
-import com.ridex.security.CustomUserDetails;
 import com.ridex.service.LocationService;
+import com.ridex.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +20,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationResponse saveLocation(LocationRequest request) {
 
-        User user = getCurrentUser();
+        User user = SecurityUtil.getCurrentUser();
 
         Location location = new Location();
 
@@ -41,7 +39,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public List<LocationResponse> getMyLocations() {
 
-        User user = getCurrentUser();
+        User user = SecurityUtil.getCurrentUser();
 
         List<Location> locations =
                 locationRepository.findByUserAndDeletedFalse(user);
@@ -55,7 +53,7 @@ public class LocationServiceImpl implements LocationService {
     public LocationResponse updateLocation(Long locationId,
                                            LocationRequest request) {
 
-        User user = getCurrentUser();
+        User user = SecurityUtil.getCurrentUser();
 
         Location location = locationRepository
                 .findByIdAndDeletedFalse(locationId)
@@ -81,7 +79,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public Boolean deleteLocation(Long locationId) {
 
-        User user = getCurrentUser();
+        User user = SecurityUtil.getCurrentUser();
 
         Location location = locationRepository
                 .findByIdAndDeletedFalse(locationId)
@@ -95,20 +93,6 @@ public class LocationServiceImpl implements LocationService {
         locationRepository.save(location);
 
         return true;
-    }
-
-    /**
-     * Get Current Login User
-     */
-    private User getCurrentUser() {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        return userDetails.getUser();
     }
 
     /**

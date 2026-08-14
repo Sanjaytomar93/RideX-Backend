@@ -1,14 +1,16 @@
 package com.ridex.serviceImpl;
+import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.UpdateProfileRequest;
 import com.ridex.dto.response.UserProfileResponse;
 import com.ridex.entity.User;
+import com.ridex.exception.DuplicateResourceException;
+import com.ridex.exception.ResourceNotFoundException;
 import com.ridex.repository.UserRepository;
-import com.ridex.security.CustomUserDetails;
 import com.ridex.service.UserService;
+import com.ridex.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +21,48 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileResponse getProfile() {
 
-        User user = getCurrentUser();
+        User user = getFreshUserFromDb();
+
+        return mapToResponse(user);
+    }
+
+    @Override
+    public UserProfileResponse updateProfile(UpdateProfileRequest request) {
+
+        User user = getFreshUserFromDb();
+
+        if (StringUtils.hasText(request.getEmail())
+                && !request.getEmail().equalsIgnoreCase(user.getEmail())
+                && userRepository.existsByEmailAndIdNot(request.getEmail(), user.getId())) {
+            throw new DuplicateResourceException(ResponseMessage.EMAIL_ALREADY_EXISTS);
+        }
+
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setGender(request.getGender());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setProfileImage(request.getProfileImage());
+        user.setProfileCompleted(true);
+
+        if (StringUtils.hasText(request.getEmail())
+                && !request.getEmail().equalsIgnoreCase(user.getEmail())) {
+            user.setEmailVerified(false);
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToResponse(updatedUser);
+    }
+
+    private User getFreshUserFromDb() {
+
+        User currentUser = SecurityUtil.getCurrentUser();
+
+        return userRepository.findByIdAndDeletedFalse(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private UserProfileResponse mapToResponse(User user) {
 
         return UserProfileResponse.builder()
                 .id(user.getId())
@@ -36,51 +79,4 @@ public class UserServiceImpl implements UserService {
                 .profileCompleted(user.getProfileCompleted())
                 .build();
     }
-
-    @Override
-    public UserProfileResponse updateProfile(UpdateProfileRequest request) {
-
-        User user = getCurrentUser();
-
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setGender(request.getGender());
-        user.setDateOfBirth(request.getDateOfBirth());
-        user.setProfileImage(request.getProfileImage());
-
-        user.setProfileCompleted(true);
-
-        User updatedUser = userRepository.save(user);
-
-        return UserProfileResponse.builder()
-                .id(updatedUser.getId())
-                .fullName(updatedUser.getFullName())
-                .mobileNumber(updatedUser.getMobileNumber())
-                .email(updatedUser.getEmail())
-                .gender(updatedUser.getGender())
-                .dateOfBirth(updatedUser.getDateOfBirth())
-                .profileImage(updatedUser.getProfileImage())
-                .role(updatedUser.getRole())
-                .status(updatedUser.getStatus())
-                .mobileVerified(updatedUser.getMobileVerified())
-                .emailVerified(updatedUser.getEmailVerified())
-                .profileCompleted(updatedUser.getProfileCompleted())
-                .build();
-    }
-
-    /**
-     * Get Current Logged In User
-     */
-    private User getCurrentUser() {
-
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        CustomUserDetails userDetails =
-                (CustomUserDetails) authentication.getPrincipal();
-
-        return userDetails.getUser();
-    }
-
-
 }
