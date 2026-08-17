@@ -1,5 +1,4 @@
 package com.ridex.exception;
-
 import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.response.CommonApiResponse;
 import com.ridex.util.ApiResponseUtil;
@@ -8,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.util.List;
 
 @RestControllerAdvice
@@ -97,6 +95,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponseUtil.error(
                         HttpStatus.CONFLICT.value(),
+                        ex.getMessage(),
+                        List.of()
+                ));
+    }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<CommonApiResponse<Object>> handlePaymentNotFound(
+            PaymentNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponseUtil.error(
+                        HttpStatus.NOT_FOUND.value(),
+                        ex.getMessage(),
+                        List.of()
+                ));
+    }
+
+    @ExceptionHandler(PaymentVerificationException.class)
+    public ResponseEntity<CommonApiResponse<Object>> handlePaymentVerification(
+            PaymentVerificationException ex) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponseUtil.error(
+                        HttpStatus.BAD_REQUEST.value(),
                         ex.getMessage(),
                         List.of()
                 ));

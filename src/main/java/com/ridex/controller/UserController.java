@@ -1,5 +1,4 @@
 package com.ridex.controller;
-
 import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.UpdateProfileRequest;
 import com.ridex.dto.response.CommonApiResponse;
