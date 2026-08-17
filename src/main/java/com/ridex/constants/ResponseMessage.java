@@ -103,4 +103,28 @@ public class ResponseMessage {
     public static final String INVALID_RIDE_STATUS_TRANSITION = "Invalid ride status transition";
 
     public static final String DRIVER_VEHICLE_NOT_FOUND = "Driver vehicle not found";
+
+    public static final String PAYMENT_ORDER_CREATED = "Payment order created successfully";
+
+    public static final String PAYMENT_VERIFIED = "Payment verified successfully";
+
+    public static final String PAYMENT_FETCHED = "Payment fetched successfully";
+
+    public static final String PAYMENT_HISTORY_FETCHED = "Payment history fetched successfully";
+
+    public static final String PAYMENT_NOT_FOUND = "Payment not found";
+
+    public static final String PAYMENT_VERIFICATION_FAILED = "Payment verification failed";
+
+    public static final String PAYMENT_ORDER_CREATION_FAILED = "Unable to create payment order";
+
+    public static final String RIDE_NOT_COMPLETED = "Payment is available only after ride completion";
+
+    public static final String RIDE_ALREADY_PAID = "Ride is already paid";
+
+    public static final String WEBHOOK_PROCESSED = "Webhook processed successfully";
+
+    public static final String WEBHOOK_VERIFICATION_FAILED = "Webhook signature verification failed";
+
+    public static final String WEBHOOK_SECRET_NOT_CONFIGURED = "Razorpay webhook secret is not configured";
 }

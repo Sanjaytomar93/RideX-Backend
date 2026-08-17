@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User updatedUser = userRepository.save(user);
+        System.out.println("Updated user: " + updatedUser); // Debugging statement
 
         return mapToResponse(updatedUser);
     }

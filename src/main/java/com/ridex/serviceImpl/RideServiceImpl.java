@@ -6,6 +6,7 @@ import com.ridex.dto.response.PageResponse;
 import com.ridex.dto.response.RideResponse;
 import com.ridex.entity.Ride;
 import com.ridex.entity.User;
+import com.ridex.event.RideRequestedEvent;
 import com.ridex.enums.PaymentStatus;
 import com.ridex.enums.RideStatus;
 import com.ridex.exception.ActiveRideExistsException;
@@ -20,6 +21,7 @@ import com.ridex.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -43,6 +45,7 @@ public class RideServiceImpl implements RideService {
 
     private final RideRepository rideRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -80,6 +83,8 @@ public class RideServiceImpl implements RideService {
                 .build();
 
         Ride savedRide = rideRepository.save(ride);
+
+        eventPublisher.publishEvent(new RideRequestedEvent(savedRide.getId()));
 
         return mapToResponse(savedRide);
     }

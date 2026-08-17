@@ -1,5 +1,4 @@
 package com.ridex.serviceImpl;
-
 import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.RejectDriverRequest;
 import com.ridex.dto.response.DriverProfileResponse;

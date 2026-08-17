@@ -1,5 +1,4 @@
 package com.ridex.serviceImpl;
-
 import com.ridex.constants.ResponseMessage;
 import com.ridex.dto.request.DriverRegistrationRequest;
 import com.ridex.dto.request.UpdateDriverLocationRequest;
